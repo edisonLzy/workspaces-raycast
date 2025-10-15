@@ -5,20 +5,23 @@
  * Do not modify manually. Instead, update the `package.json` file.
  * 🚧 🚧 🚧 */
 
+/* eslint-disable @typescript-eslint/ban-types */
+
 type ExtensionPreferences = {
   /** 工作目录根路径 - 存储 worktrees 和 requirements.json 的统一目录 */
-  'workspaceRoot': string;
-};
+  "workspaceRoot": string
+}
 
 /** Preferences accessible in all the extension's commands */
-declare type Preferences = ExtensionPreferences;
+declare type Preferences = ExtensionPreferences
 
 declare namespace Preferences {
-  /** Preferences accessible in the `view-requirements` command */
-  export type ViewRequirements = ExtensionPreferences & Record<string, never>;
+  /** Preferences accessible in the `requirements` command */
+  export type Requirements = ExtensionPreferences & {}
 }
 
 declare namespace Arguments {
-  /** Arguments passed to the `view-requirements` command */
-  export type ViewRequirements = Record<string, never>;
+  /** Arguments passed to the `requirements` command */
+  export type Requirements = {}
 }
+

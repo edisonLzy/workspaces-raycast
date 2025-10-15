@@ -11,8 +11,8 @@
   "license": "MIT",
   "commands": [
     {
-      "name": "view-requirements",
-      "title": "View Requirements",
+      "name": "requirements",
+      "title": "Requirements",
       "description": "View and manage all requirements",
       "mode": "view"
     }

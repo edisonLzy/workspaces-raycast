@@ -11,8 +11,6 @@ import type { Requirement, WorktreeInfo } from '../types';
  */
 export function WorktreesView({ requirement }: { requirement: Requirement }) {
   const worktrees = requirement.worktrees || [];
-  const deadline = new Date(requirement.deadline);
-  const deadlineStr = deadline.toLocaleDateString('zh-CN');
 
   const openInEditor = useOpenInEditor();
   const showInFinder = useShowInFinder();
@@ -20,31 +18,6 @@ export function WorktreesView({ requirement }: { requirement: Requirement }) {
 
   return (
     <List navigationTitle={requirement.name} searchBarPlaceholder="搜索工作区...">
-      <List.Section title="需求信息">
-        <List.Item title="迭代版本" accessories={[{ text: requirement.iteration }]} />
-        <List.Item title="截止时间" accessories={[{ text: deadlineStr, icon: Icon.Calendar }]} />
-        {requirement.context.length > 0 && (
-          <List.Item
-            title="上下文文档"
-            accessories={[{ text: `${requirement.context.length} 个文档` }]}
-            actions={
-              <ActionPanel>
-                <ActionPanel.Section title="上下文文档">
-                  {requirement.context.map((ctx, idx) => (
-                    <Action.OpenInBrowser
-                      key={idx}
-                      title={`打开 ${ctx.label}`}
-                      url={ctx.content}
-                      icon={Icon.Link}
-                    />
-                  ))}
-                </ActionPanel.Section>
-              </ActionPanel>
-            }
-          />
-        )}
-      </List.Section>
-
       <List.Section title={`工作区 (${worktrees.length})`}>
         {worktrees.length === 0 ? (
           <List.Item
