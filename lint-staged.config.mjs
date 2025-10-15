@@ -1,5 +1,5 @@
 export default {
-  "*.{ts,tsx}": [
-    "ray lint --fix"
+  '*.{ts,tsx}': [
+    'eslint --fix'
   ]
 };

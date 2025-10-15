@@ -2,7 +2,7 @@
  * 上下文信息类型
  */
 export interface ContextInfo {
-  type: "link"; // 后续可能会扩展更多类型
+  type: 'link'; // 后续可能会扩展更多类型
   label: string;
   content: string;
 }

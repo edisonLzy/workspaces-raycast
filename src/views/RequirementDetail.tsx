@@ -1,18 +1,22 @@
-import React from "react";
-import { Detail, ActionPanel, Action, Icon } from "@raycast/api";
-import type { Requirement } from "../types";
+import React from 'react';
+import { Detail, ActionPanel, Action, Icon } from '@raycast/api';
+import type { Requirement } from '../types';
 
 /**
  * 需求详情界面
  * 展示需求的基本信息和元数据
  */
-export function RequirementDetail({ requirement }: { requirement: Requirement }) {
+export function RequirementDetail({
+  requirement,
+}: {
+  requirement: Requirement;
+}) {
   const worktreeCount = requirement.worktrees?.length || 0;
   const deadline = new Date(requirement.deadline);
-  const deadlineStr = deadline.toLocaleDateString("zh-CN", {
-    year: "numeric",
-    month: "long",
-    day: "numeric",
+  const deadlineStr = deadline.toLocaleDateString('zh-CN', {
+    year: 'numeric',
+    month: 'long',
+    day: 'numeric',
   });
 
   // 构建 Markdown 内容
@@ -33,9 +37,9 @@ ${
   requirement.context.length > 0
     ? `
 ## 上下文文档
-${requirement.context.map((ctx, idx) => `${idx + 1}. [${ctx.label}](${ctx.content})`).join("\n")}
+${requirement.context.map((ctx, idx) => `${idx + 1}. [${ctx.label}](${ctx.content})`).join('\n')}
 `
-    : ""
+    : ''
 }
   `.trim();
 
@@ -48,8 +52,16 @@ ${requirement.context.map((ctx, idx) => `${idx + 1}. [${ctx.label}](${ctx.conten
           <Detail.Metadata.Label title="需求名称" text={requirement.name} />
           <Detail.Metadata.Separator />
 
-          <Detail.Metadata.Label title="迭代版本" text={requirement.iteration} icon={Icon.Tag} />
-          <Detail.Metadata.Label title="截止时间" text={deadlineStr} icon={Icon.Calendar} />
+          <Detail.Metadata.Label
+            title="迭代版本"
+            text={requirement.iteration}
+            icon={Icon.Tag}
+          />
+          <Detail.Metadata.Label
+            title="截止时间"
+            text={deadlineStr}
+            icon={Icon.Calendar}
+          />
           <Detail.Metadata.Label
             title="工作区数量"
             text={`${worktreeCount} 个`}

@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState } from 'react';
 import {
   List,
   ActionPanel,
@@ -8,13 +8,19 @@ import {
   Alert,
   Form,
   useNavigation,
-} from "@raycast/api";
-import { useGroupedRequirements, useDeleteRequirement } from "./hooks/useRequirements";
-import { useCreateWorktree, useRemoveWorktree } from "./hooks/useGitOperations";
-import { useGenerateBranchName, convertToKebabCase } from "./hooks/useClaudeCode";
-import { useOpenInEditor, useShowInFinder } from "./hooks/useEditor";
-import { useValidateBranchName } from "./hooks/useGitRepository";
-import type { Requirement, WorktreeInfo } from "./types";
+} from '@raycast/api';
+import {
+  useGroupedRequirements,
+  useDeleteRequirement,
+} from './hooks/useRequirements';
+import { useCreateWorktree, useRemoveWorktree } from './hooks/useGitOperations';
+import {
+  useGenerateBranchName,
+  convertToKebabCase,
+} from './hooks/useClaudeCode';
+import { useOpenInEditor, useShowInFinder } from './hooks/useEditor';
+import { useValidateBranchName } from './hooks/useGitRepository';
+import type { Requirement, WorktreeInfo } from './types';
 
 export default function ViewRequirements() {
   const { data: groupedRequirements, isLoading } = useGroupedRequirements();
@@ -25,7 +31,11 @@ export default function ViewRequirements() {
       {Array.from(groupedRequirements.entries()).map(([iteration, reqs]) => (
         <List.Section key={iteration} title={`迭代 ${iteration}`}>
           {reqs.map((req: Requirement) => (
-            <RequirementListItem key={req.id} requirement={req} onDelete={deleteRequirement} />
+            <RequirementListItem
+              key={req.id}
+              requirement={req}
+              onDelete={deleteRequirement}
+            />
           ))}
         </List.Section>
       ))}
@@ -38,10 +48,13 @@ interface RequirementListItemProps {
   onDelete: (id: string) => Promise<void>;
 }
 
-function RequirementListItem({ requirement, onDelete }: RequirementListItemProps) {
+function RequirementListItem({
+  requirement,
+  onDelete,
+}: RequirementListItemProps) {
   const worktreeCount = requirement.worktrees?.length || 0;
   const deadline = new Date(requirement.deadline);
-  const deadlineStr = deadline.toLocaleDateString("zh-CN");
+  const deadlineStr = deadline.toLocaleDateString('zh-CN');
 
   const accessories: List.Item.Accessory[] = [
     { text: `${worktreeCount} worktree(s)`, icon: Icon.CodeBlock },
@@ -81,13 +94,13 @@ function RequirementListItem({ requirement, onDelete }: RequirementListItemProps
               title="删除需求"
               icon={Icon.Trash}
               style={Action.Style.Destructive}
-              shortcut={{ modifiers: ["cmd", "shift"], key: "d" }}
+              shortcut={{ modifiers: ['cmd', 'shift'], key: 'd' }}
               onAction={async () => {
                 const confirmed = await confirmAlert({
-                  title: "删除需求",
+                  title: '删除需求',
                   message: `确定要删除需求 "${requirement.name}" 吗?`,
                   primaryAction: {
-                    title: "删除",
+                    title: '删除',
                     style: Alert.ActionStyle.Destructive,
                   },
                 });
@@ -114,7 +127,7 @@ interface RequirementDetailProps {
 function RequirementDetail({ requirement }: RequirementDetailProps) {
   const worktrees = requirement.worktrees || [];
   const deadline = new Date(requirement.deadline);
-  const deadlineStr = deadline.toLocaleDateString("zh-CN");
+  const deadlineStr = deadline.toLocaleDateString('zh-CN');
 
   return (
     <List
@@ -162,7 +175,7 @@ function RequirementDetail({ requirement }: RequirementDetailProps) {
                 <Action.Push
                   title="创建 Worktree"
                   icon={Icon.Plus}
-                  shortcut={{ modifiers: ["cmd"], key: "n" }}
+                  shortcut={{ modifiers: ['cmd'], key: 'n' }}
                   target={<CreateWorktreeForm requirement={requirement} />}
                 />
               </ActionPanel>
@@ -170,7 +183,11 @@ function RequirementDetail({ requirement }: RequirementDetailProps) {
           />
         ) : (
           worktrees.map((worktree, idx) => (
-            <WorktreeListItem key={idx} requirement={requirement} worktree={worktree} />
+            <WorktreeListItem
+              key={idx}
+              requirement={requirement}
+              worktree={worktree}
+            />
           ))
         )}
       </List.Section>
@@ -198,7 +215,7 @@ function WorktreeListItem({ requirement, worktree }: WorktreeListItemProps) {
       subtitle={worktree.branch}
       accessories={[
         { text: worktree.repository, icon: Icon.Box },
-        { tag: { value: "worktree", color: "#4CAF50" } },
+        { tag: { value: 'worktree', color: '#4CAF50' } },
       ]}
       actions={
         <ActionPanel>
@@ -206,7 +223,7 @@ function WorktreeListItem({ requirement, worktree }: WorktreeListItemProps) {
             <Action
               title="在编辑器中打开"
               icon={Icon.Code}
-              shortcut={{ modifiers: ["cmd"], key: "o" }}
+              shortcut={{ modifiers: ['cmd'], key: 'o' }}
               onAction={async () => {
                 await openInEditor(worktree.path);
               }}
@@ -214,7 +231,7 @@ function WorktreeListItem({ requirement, worktree }: WorktreeListItemProps) {
             <Action
               title="在 Finder 中显示"
               icon={Icon.Finder}
-              shortcut={{ modifiers: ["cmd"], key: "f" }}
+              shortcut={{ modifiers: ['cmd'], key: 'f' }}
               onAction={async () => {
                 await showInFinder(worktree.path);
               }}
@@ -222,12 +239,12 @@ function WorktreeListItem({ requirement, worktree }: WorktreeListItemProps) {
             <Action.CopyToClipboard
               title="复制路径"
               content={worktree.path}
-              shortcut={{ modifiers: ["cmd"], key: "c" }}
+              shortcut={{ modifiers: ['cmd'], key: 'c' }}
             />
             <Action.CopyToClipboard
               title="复制分支名"
               content={worktree.branch}
-              shortcut={{ modifiers: ["cmd", "shift"], key: "c" }}
+              shortcut={{ modifiers: ['cmd', 'shift'], key: 'c' }}
             />
           </ActionPanel.Section>
 
@@ -235,16 +252,20 @@ function WorktreeListItem({ requirement, worktree }: WorktreeListItemProps) {
             <Action.Push
               title="创建新 Worktree"
               icon={Icon.Plus}
-              shortcut={{ modifiers: ["cmd"], key: "n" }}
+              shortcut={{ modifiers: ['cmd'], key: 'n' }}
               target={<CreateWorktreeForm requirement={requirement} />}
             />
             <Action
               title="删除此 Worktree"
               icon={Icon.Trash}
               style={Action.Style.Destructive}
-              shortcut={{ modifiers: ["cmd"], key: "delete" }}
+              shortcut={{ modifiers: ['cmd'], key: 'delete' }}
               onAction={async () => {
-                await removeWorktree(requirement.id, worktree.path, worktree.path);
+                await removeWorktree(
+                  requirement.id,
+                  worktree.path,
+                  worktree.path,
+                );
               }}
             />
           </ActionPanel.Section>
@@ -268,10 +289,10 @@ function CreateWorktreeForm({ requirement }: CreateWorktreeFormProps) {
   const validateBranchName = useValidateBranchName();
   const openInEditor = useOpenInEditor();
 
-  const [label, setLabel] = useState("主分支");
-  const [repoPath, setRepoPath] = useState("");
-  const [branchName, setBranchName] = useState("");
-  const [repository, setRepository] = useState("");
+  const [label, setLabel] = useState('主分支');
+  const [repoPath, setRepoPath] = useState('');
+  const [branchName, setBranchName] = useState('');
+  const [repository, setRepository] = useState('');
   const [isGenerating, setIsGenerating] = useState(false);
 
   async function handleGenerateBranchName() {
@@ -290,12 +311,17 @@ function CreateWorktreeForm({ requirement }: CreateWorktreeFormProps) {
     }
   }
 
-  async function handleSubmit(values: { label: string; repoPath: string; branchName: string; repository: string }) {
+  async function handleSubmit(values: {
+    label: string;
+    repoPath: string;
+    branchName: string;
+    repository: string;
+  }) {
     // 验证分支名
     const validation = validateBranchName(values.branchName);
     if (!validation.valid) {
       await confirmAlert({
-        title: "分支名无效",
+        title: '分支名无效',
         message: validation.message,
       });
       return;
@@ -322,7 +348,11 @@ function CreateWorktreeForm({ requirement }: CreateWorktreeFormProps) {
       actions={
         <ActionPanel>
           <Action.SubmitForm title="创建 Worktree" onSubmit={handleSubmit} />
-          <Action title="生成分支名" icon={Icon.Wand} onAction={handleGenerateBranchName} />
+          <Action
+            title="生成分支名"
+            icon={Icon.Wand}
+            onAction={handleGenerateBranchName}
+          />
         </ActionPanel>
       }
     >
@@ -331,7 +361,13 @@ function CreateWorktreeForm({ requirement }: CreateWorktreeFormProps) {
         text={`${requirement.iteration} - ${requirement.name}`}
       />
       <Form.Separator />
-      <Form.TextField id="label" title="Worktree 标签" placeholder="主分支" value={label} onChange={setLabel} />
+      <Form.TextField
+        id="label"
+        title="Worktree 标签"
+        placeholder="主分支"
+        value={label}
+        onChange={setLabel}
+      />
       <Form.FilePicker
         id="repoPath"
         title="仓库路径"
@@ -339,7 +375,7 @@ function CreateWorktreeForm({ requirement }: CreateWorktreeFormProps) {
         canChooseDirectories
         canChooseFiles={false}
         value={repoPath ? [repoPath] : []}
-        onChange={(paths) => setRepoPath(paths[0] || "")}
+        onChange={(paths) => setRepoPath(paths[0] || '')}
       />
       <Form.TextField
         id="branchName"

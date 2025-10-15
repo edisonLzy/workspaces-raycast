@@ -1,9 +1,14 @@
-import { useCachedPromise } from "@raycast/utils";
-import { useCallback, useMemo } from "react";
-import { showToast, Toast, getPreferenceValues } from "@raycast/api";
-import * as fsUtils from "../utils/fs";
-import * as pathUtils from "../utils/path";
-import type { Requirement, RequirementsData, WorktreeInfo, Preferences } from "../types";
+import { useCachedPromise } from '@raycast/utils';
+import { useCallback, useMemo } from 'react';
+import { showToast, Toast, getPreferenceValues } from '@raycast/api';
+import * as fsUtils from '../utils/fs';
+import * as pathUtils from '../utils/path';
+import type {
+  Requirement,
+  RequirementsData,
+  WorktreeInfo,
+  Preferences,
+} from '../types';
 
 /**
  * Hook: 加载需求数据 (带缓存)
@@ -19,7 +24,7 @@ export function useRequirements() {
         const data = await fsUtils.readJSON<RequirementsData>(filePath);
         return data.requirements;
       } catch (error) {
-        if ((error as NodeJS.ErrnoException).code === "ENOENT") {
+        if ((error as NodeJS.ErrnoException).code === 'ENOENT') {
           return []; // 文件不存在,返回空数组
         }
         throw error;
@@ -42,16 +47,21 @@ export function useUpdateRequirement() {
   const { workspaceRoot } = getPreferenceValues<Preferences>();
 
   return useCallback(
-    async (requirementId: string, updates: Partial<Omit<Requirement, "id">>) => {
-      await showToast({ style: Toast.Style.Animated, title: "更新需求中..." });
+    async (
+      requirementId: string,
+      updates: Partial<Omit<Requirement, 'id'>>,
+    ) => {
+      await showToast({ style: Toast.Style.Animated, title: '更新需求中...' });
 
       try {
         const filePath = pathUtils.getDataFilePath(workspaceRoot);
         const data = await fsUtils.readJSON<RequirementsData>(filePath);
 
-        const index = data.requirements.findIndex((r) => r.id === requirementId);
+        const index = data.requirements.findIndex(
+          (r) => r.id === requirementId,
+        );
         if (index === -1) {
-          throw new Error("需求不存在");
+          throw new Error('需求不存在');
         }
 
         data.requirements[index] = {
@@ -63,11 +73,11 @@ export function useUpdateRequirement() {
         await fsUtils.writeJSON(filePath, data);
         await mutate();
 
-        await showToast({ style: Toast.Style.Success, title: "需求更新成功" });
+        await showToast({ style: Toast.Style.Success, title: '需求更新成功' });
       } catch (error) {
         await showToast({
           style: Toast.Style.Failure,
-          title: "更新失败",
+          title: '更新失败',
           message: error instanceof Error ? error.message : String(error),
         });
         throw error;
@@ -87,23 +97,25 @@ export function useDeleteRequirement() {
 
   return useCallback(
     async (requirementId: string) => {
-      await showToast({ style: Toast.Style.Animated, title: "删除需求中..." });
+      await showToast({ style: Toast.Style.Animated, title: '删除需求中...' });
 
       try {
         const filePath = pathUtils.getDataFilePath(workspaceRoot);
         const data = await fsUtils.readJSON<RequirementsData>(filePath);
 
-        data.requirements = data.requirements.filter((r) => r.id !== requirementId);
+        data.requirements = data.requirements.filter(
+          (r) => r.id !== requirementId,
+        );
         data.lastSyncAt = new Date().toISOString();
 
         await fsUtils.writeJSON(filePath, data);
         await mutate();
 
-        await showToast({ style: Toast.Style.Success, title: "需求删除成功" });
+        await showToast({ style: Toast.Style.Success, title: '需求删除成功' });
       } catch (error) {
         await showToast({
           style: Toast.Style.Failure,
-          title: "删除失败",
+          title: '删除失败',
           message: error instanceof Error ? error.message : String(error),
         });
         throw error;
@@ -150,7 +162,7 @@ export function useAddWorktree() {
 
       const requirement = data.requirements.find((r) => r.id === requirementId);
       if (!requirement) {
-        throw new Error("需求不存在");
+        throw new Error('需求不存在');
       }
 
       const worktrees = requirement.worktrees || [];
@@ -176,10 +188,12 @@ export function useRemoveWorktreeFromRequirement() {
 
       const requirement = data.requirements.find((r) => r.id === requirementId);
       if (!requirement) {
-        throw new Error("需求不存在");
+        throw new Error('需求不存在');
       }
 
-      const worktrees = (requirement.worktrees || []).filter((w) => w.path !== worktreePath);
+      const worktrees = (requirement.worktrees || []).filter(
+        (w) => w.path !== worktreePath,
+      );
 
       await updateRequirement(requirementId, { worktrees });
     },
