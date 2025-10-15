@@ -18,14 +18,10 @@ declare type Preferences = ExtensionPreferences
 declare namespace Preferences {
   /** Preferences accessible in the `view-requirements` command */
   export type ViewRequirements = ExtensionPreferences & {}
-  /** Preferences accessible in the `add-requirement` command */
-  export type AddRequirement = ExtensionPreferences & {}
 }
 
 declare namespace Arguments {
   /** Arguments passed to the `view-requirements` command */
   export type ViewRequirements = {}
-  /** Arguments passed to the `add-requirement` command */
-  export type AddRequirement = {}
 }
 

@@ -34,63 +34,6 @@ export function useRequirements() {
 }
 
 /**
- * Hook: 添加需求
- * 包含: 数据处理 + ID 生成 + 文件保存 + Toast + 缓存刷新
- */
-export function useAddRequirement() {
-  const { mutate } = useRequirements();
-  const { workspaceRoot } = getPreferenceValues<Preferences>();
-
-  return useCallback(
-    async (req: Omit<Requirement, "id" | "worktrees">) => {
-      await showToast({ style: Toast.Style.Animated, title: "添加需求中..." });
-
-      try {
-        const filePath = pathUtils.getDataFilePath(workspaceRoot);
-
-        // 1. 读取现有数据
-        let requirements: Requirement[] = [];
-        try {
-          const data = await fsUtils.readJSON<RequirementsData>(filePath);
-          requirements = data.requirements;
-        } catch (error) {
-          // 文件不存在,使用空数组
-        }
-
-        // 2. 创建新需求
-        const newReq: Requirement = {
-          ...req,
-          id: crypto.randomUUID(),
-          worktrees: [],
-        };
-
-        // 3. 添加并保存
-        requirements.push(newReq);
-        await fsUtils.writeJSON(filePath, {
-          version: "1.0",
-          requirements,
-          lastSyncAt: new Date().toISOString(),
-        });
-
-        // 4. 刷新缓存
-        await mutate();
-
-        await showToast({ style: Toast.Style.Success, title: "需求添加成功" });
-        return newReq;
-      } catch (error) {
-        await showToast({
-          style: Toast.Style.Failure,
-          title: "添加失败",
-          message: error instanceof Error ? error.message : String(error),
-        });
-        throw error;
-      }
-    },
-    [mutate, workspaceRoot],
-  );
-}
-
-/**
  * Hook: 更新需求
  * 包含: 验证 + 保存 + Toast + 缓存刷新
  */
