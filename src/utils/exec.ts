@@ -36,16 +36,3 @@ export async function execClaude(
   });
   return stdout;
 }
-
-/**
- * 执行 open 命令
- * 纯函数: 不包含 Toast
- */
-export async function execOpen(
-  path: string,
-  options?: ExecOptions,
-): Promise<void> {
-  await execFileAsync('open', [path], {
-    timeout: options?.timeout || 5000,
-  });
-}

@@ -12,6 +12,7 @@ import {
   useDeleteRequirement,
 } from '../hooks/useRequirements';
 import { RequirementDetail } from './RequirementDetail';
+import { WorktreesView } from './WorktreesView';
 import type { Requirement } from '../types';
 
 /**
@@ -45,6 +46,14 @@ export function RequirementsView() {
                   accessories={accessories}
                   actions={
                     <ActionPanel>
+                      <ActionPanel.Section title="工作区">
+                        <Action.Push
+                          title="查看工作区"
+                          icon={Icon.CodeBlock}
+                          target={<WorktreesView requirement={req} />}
+                        />
+                      </ActionPanel.Section>
+
                       <ActionPanel.Section title="需求详情">
                         <Action.Push
                           title="查看需求详情"

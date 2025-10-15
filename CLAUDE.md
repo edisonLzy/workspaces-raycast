@@ -37,6 +37,11 @@ The codebase follows a strict three-layer architecture where business logic is c
 - `exec.ts` - Command execution wrappers (execGit, execClaude with timeout support)
 - `path.ts` - Path manipulation utilities
 
+**Important**: Prefer Raycast official utilities over custom implementations:
+- Use `@raycast/api` functions: `open()`, `showInFinder()`, `trash()` for file operations
+- Use `@raycast/utils` hooks: `useExec()`, `usePromise()` for async operations
+- Only create custom utilities when official APIs don't cover the use case
+
 ### Layer 2: Hooks (`src/hooks/`)
 **Business logic concentration point** - each hook is a complete, self-contained workflow:
 
@@ -64,9 +69,8 @@ The codebase follows a strict three-layer architecture where business logic is c
   - Timeout handling (10s max)
 
 - `useEditor.ts` - Editor integration
-  - Open directory in VS Code
-  - Show in Finder
-  - Configurable editor command
+  - Open directory in VS Code using `open()` from `@raycast/api`
+  - Show in Finder using `showInFinder()` from `@raycast/api`
 
 **Hook Design Pattern**: Each hook contains the complete workflow:
 1. Input validation
@@ -158,7 +162,10 @@ All data is stored in `<workspaceRoot>/requirements.json`:
 - All commands must be registered in `package.json`
 
 ### Raycast API Patterns
-- Use `useExec` from `@raycast/utils` for async command execution with loading states
+- **Prefer official utilities**: Always use `@raycast/api` and `@raycast/utils` utilities when available
+  - File operations: `open()`, `showInFinder()`, `trash()`
+  - Command execution: `useExec()` hook for async commands with loading states
+  - Async operations: `usePromise()`, `useCachedPromise()` for data fetching
 - Use `showToast` for user feedback (success/error messages)
 - Use `confirmAlert` before destructive operations (delete requirement/worktree)
 - Navigation: `Action.Push` for drill-down views, `useNavigation().pop()` to go back
@@ -198,3 +205,4 @@ When making changes:
 - Test branch name edge cases (special characters, existing branches)
 - Verify Toast messages are clear and actionable
 - Test keyboard shortcuts don't conflict with Raycast defaults
+- to memorize

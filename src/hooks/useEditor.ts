@@ -1,15 +1,15 @@
 import { useCallback } from 'react';
-import { showToast, Toast, open } from '@raycast/api';
-import * as execUtils from '../utils/exec';
+import { showToast, Toast, open, showInFinder } from '@raycast/api';
 
 /**
  * Hook: 打开编辑器
  * 包含: 执行 + Toast 反馈
+ * 使用 Raycast 官方 open() API
  */
 export function useOpenInEditor() {
   return useCallback(async (path: string) => {
     try {
-      await execUtils.execOpen(path);
+      await open(path);
       await showToast({ style: Toast.Style.Success, title: '已打开' });
     } catch (error) {
       await showToast({
@@ -25,11 +25,12 @@ export function useOpenInEditor() {
 /**
  * Hook: 在 Finder 中显示
  * 包含: 执行 + Toast 反馈
+ * 使用 Raycast 官方 showInFinder() API
  */
 export function useShowInFinder() {
   return useCallback(async (path: string) => {
     try {
-      await open(path);
+      await showInFinder(path);
       await showToast({
         style: Toast.Style.Success,
         title: '已在 Finder 中显示',
