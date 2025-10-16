@@ -22,17 +22,3 @@ export async function execGit(
   });
   return stdout;
 }
-
-/**
- * 执行 Claude Code 命令
- * 纯函数: 不包含降级逻辑,直接抛出错误
- */
-export async function execClaude(
-  prompt: string,
-  options?: ExecOptions,
-): Promise<string> {
-  const { stdout } = await execFileAsync('claude', [prompt], {
-    timeout: options?.timeout || 10000,
-  });
-  return stdout;
-}

@@ -1,7 +1,6 @@
 import React, { useState } from 'react';
-import { Form, ActionPanel, Action, Icon, confirmAlert, useNavigation } from '@raycast/api';
+import { Form, ActionPanel, Action, confirmAlert, useNavigation } from '@raycast/api';
 import { useCreateWorktree } from '../hooks/useGitOperations';
-import { useGenerateBranchName, convertToKebabCase } from '../hooks/useClaudeCode';
 import { useOpenInEditor } from '../hooks/useEditor';
 import { useValidateBranchName } from '../hooks/useGitRepository';
 import type { Requirement } from '../types';
@@ -13,7 +12,6 @@ import type { Requirement } from '../types';
 export function WorktreeCreateForm({ requirement }: { requirement: Requirement }) {
   const { pop } = useNavigation();
   const createWorktree = useCreateWorktree();
-  const generateBranchName = useGenerateBranchName();
   const validateBranchName = useValidateBranchName();
   const openInEditor = useOpenInEditor();
 
@@ -21,23 +19,6 @@ export function WorktreeCreateForm({ requirement }: { requirement: Requirement }
   const [repoPath, setRepoPath] = useState('');
   const [branchName, setBranchName] = useState('');
   const [repository, setRepository] = useState('');
-  const [isGenerating, setIsGenerating] = useState(false);
-
-  async function handleGenerateBranchName() {
-    setIsGenerating(true);
-    try {
-      const generated = await generateBranchName(requirement.name);
-      if (generated) {
-        setBranchName(generated);
-      } else {
-        // Claude Code 不可用,使用简单的转换
-        const fallback = convertToKebabCase(requirement.name);
-        setBranchName(fallback);
-      }
-    } finally {
-      setIsGenerating(false);
-    }
-  }
 
   async function handleSubmit(values: {
     label: string;
@@ -71,12 +52,10 @@ export function WorktreeCreateForm({ requirement }: { requirement: Requirement }
 
   return (
     <Form
-      isLoading={isGenerating}
       navigationTitle="创建 Worktree"
       actions={
         <ActionPanel>
           <Action.SubmitForm title="创建 Worktree" onSubmit={handleSubmit} />
-          <Action title="生成分支名" icon={Icon.Wand} onAction={handleGenerateBranchName} />
         </ActionPanel>
       }
     >
