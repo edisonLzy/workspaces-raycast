@@ -25,6 +25,15 @@
       "title": "工作目录根路径",
       "description": "存储 worktrees 和 requirements.json 的统一目录",
       "default": "~/workspaces"
+    },
+    {
+      "name": "claudeCliPath",
+      "type": "textfield",
+      "required": false,
+      "title": "Claude CLI 路径",
+      "description": "Claude Code CLI 的完整路径 (例如: /usr/local/bin/claude 或 /opt/homebrew/bin/claude)",
+      "default": "claude",
+      "placeholder": "/usr/local/bin/claude"
     }
   ],
   "dependencies": {

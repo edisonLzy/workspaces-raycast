@@ -1,11 +1,15 @@
+import { getPreferenceValues } from '@raycast/api';
 import { exec } from '../utils/exec';
 import type { z } from 'zod';
+import type { Preferences } from '../types';
 
 /**
  * Claude Code 集成 Hook
  * 提供结构化查询能力,支持 Zod schema 验证和类型推断
  */
 export function useClaudeCode() {
+  const { claudeCliPath = 'claude' } = getPreferenceValues<Preferences>();
+
   /**
    * 向 Claude Code 发送查询并获取结构化响应
    * @param prompt - 用户提示词
@@ -23,13 +27,15 @@ export function useClaudeCode() {
     const args = [
       '--print',
       '--output-format', 'json',
-      '--system-prompt', `You must respond with valid JSON that matches this schema: ${schemaDescription}. Only output the JSON, no markdown code blocks or explanations.`,
+      '--system-prompt', `
+      You must respond with valid JSON that matches this schema: ${schemaDescription}. 
+      Only output the JSON, no markdown code blocks or explanations.`,
       prompt,
     ];
 
     try {
       // 执行 Claude CLI (10s 超时)
-      const output = await exec('claude', args, { timeout: 10000 });
+      const output = await exec(claudeCliPath, args, { timeout: 10000 });
 
       // 解析 JSON 响应
       let jsonResponse: unknown;

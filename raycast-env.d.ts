@@ -9,7 +9,9 @@
 
 type ExtensionPreferences = {
   /** 工作目录根路径 - 存储 worktrees 和 requirements.json 的统一目录 */
-  "workspaceRoot": string
+  "workspaceRoot": string,
+  /** Claude CLI 路径 - Claude Code CLI 的完整路径 (例如: /usr/local/bin/claude 或 /opt/homebrew/bin/claude) */
+  "claudeCliPath": string
 }
 
 /** Preferences accessible in all the extension's commands */

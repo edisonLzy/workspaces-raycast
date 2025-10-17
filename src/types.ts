@@ -43,4 +43,5 @@ export interface RequirementsData {
  */
 export interface Preferences {
   workspaceRoot: string; // 工作目录根路径
+  claudeCliPath?: string; // Claude CLI 路径
 }

@@ -13,6 +13,7 @@ import {
 } from '../hooks/useRequirements';
 import { RequirementDetail } from './RequirementDetail';
 import { WorktreesView } from './WorktreesView';
+import { RequirementsCreateForm } from './RequirementsCreateForm';
 import type { Requirement } from '../types';
 
 /**
@@ -25,6 +26,19 @@ export function RequirementsView() {
 
   return (
     <List isLoading={isLoading} searchBarPlaceholder="搜索需求或迭代...">
+      <List.EmptyView
+        title="暂无需求"
+        description="开始同步排期文档或手动添加需求"
+        actions={
+          <ActionPanel>
+            <Action.Push
+              title="同步排期文档"
+              icon={Icon.ArrowClockwise}
+              target={<RequirementsCreateForm />}
+            />
+          </ActionPanel>
+        }
+      />
       {Array.from(groupedRequirements.entries()).map(
         ([iteration, requirements]) => (
           <List.Section key={iteration} title={`迭代 ${iteration}`}>
@@ -76,6 +90,12 @@ export function RequirementsView() {
                       )}
 
                       <ActionPanel.Section title="管理">
+                        <Action.Push
+                          title="同步排期文档"
+                          icon={Icon.ArrowClockwise}
+                          target={<RequirementsCreateForm />}
+                          shortcut={{ modifiers: ['cmd'], key: 'n' }}
+                        />
                         <Action
                           title="删除需求"
                           icon={Icon.Trash}
