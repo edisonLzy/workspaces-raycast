@@ -15,6 +15,9 @@ const gitignorePath = fileURLToPath(new URL('./.gitignore', import.meta.url));
 export default [
   includeIgnoreFile(gitignorePath),
   {
+    ignores: ['raycast-env.d.ts'], // Raycast 自动生成的文件,忽略 ESLint 检查
+  },
+  {
     languageOptions: {
       globals: {
         ...globals.node,
