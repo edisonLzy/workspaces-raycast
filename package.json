@@ -15,6 +15,12 @@
       "title": "Requirements",
       "description": "View and manage all requirements",
       "mode": "view"
+    },
+    {
+      "name": "test-claude-code",
+      "title": "Test Claude Code",
+      "description": "Test Claude Code CLI integration",
+      "mode": "view"
     }
   ],
   "preferences": [

@@ -34,15 +34,35 @@ export function useClaudeCode() {
     ];
 
     try {
-      // 执行 Claude CLI (10s 超时)
-      const output = await exec(claudeCliPath, args, { timeout: 10000 });
+      // 执行 Claude CLI (10s 超时, 使用 shell 解决 Node.js PATH 问题)
+      const output = await exec(claudeCliPath, args, { timeout: 10000, shell: true });
 
-      // 解析 JSON 响应
-      let jsonResponse: unknown;
+      // 解析 Claude CLI 的响应包装
+      let cliResponse: unknown;
       try {
-        jsonResponse = JSON.parse(output);
+        cliResponse = JSON.parse(output);
       } catch {
         throw new Error(`Claude CLI returned invalid JSON: ${output}`);
+      }
+
+      // 提取实际的结果 (Claude CLI 返回的是包含元数据的对象)
+      if (
+        typeof cliResponse !== 'object' ||
+        cliResponse === null ||
+        !('result' in cliResponse)
+      ) {
+        throw new Error('Claude CLI response missing "result" field');
+      }
+
+      const resultContent = (cliResponse as { result: string }).result;
+
+      // 尝试解析结果内容为 JSON (Claude 应该返回 JSON 字符串)
+      let jsonResponse: unknown;
+      try {
+        jsonResponse = JSON.parse(resultContent);
+      } catch {
+        // 如果不是 JSON,可能是纯文本响应,直接使用字符串
+        jsonResponse = resultContent;
       }
 
       // 使用 Zod schema 验证响应

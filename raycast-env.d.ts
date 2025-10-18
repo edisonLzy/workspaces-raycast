@@ -20,10 +20,14 @@ declare type Preferences = ExtensionPreferences
 declare namespace Preferences {
   /** Preferences accessible in the `requirements` command */
   export type Requirements = ExtensionPreferences & {}
+  /** Preferences accessible in the `test-claude-code` command */
+  export type TestClaudeCode = ExtensionPreferences & {}
 }
 
 declare namespace Arguments {
   /** Arguments passed to the `requirements` command */
   export type Requirements = {}
+  /** Arguments passed to the `test-claude-code` command */
+  export type TestClaudeCode = {}
 }
 

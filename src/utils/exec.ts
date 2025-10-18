@@ -1,11 +1,13 @@
 import { promisify } from 'util';
-import { execFile } from 'child_process';
+import { execFile, exec as execShell } from 'child_process';
 
 const execFileAsync = promisify(execFile);
+const execShellAsync = promisify(execShell);
 
 export interface ExecOptions {
   cwd?: string;
   timeout?: number;
+  shell?: boolean; // 是否使用 shell 执行 (解决环境变量和 PATH 问题)
 }
 
 /**
@@ -17,6 +19,30 @@ export async function exec(
   args: string[],
   options?: ExecOptions,
 ): Promise<string> {
+  // 如果需要 shell 环境 (例如 Node.js 脚本需要 PATH)
+  if (options?.shell) {
+    // 转义参数以防止注入攻击
+    const escapedArgs = args.map(arg =>
+      arg.includes(' ') || arg.includes('"') || arg.includes('\'')
+        ? `"${arg.replace(/"/g, '\\"')}"`
+        : arg,
+    );
+    const fullCommand = [command, ...escapedArgs].join(' ');
+
+    const { stdout } = await execShellAsync(fullCommand, {
+      cwd: options.cwd,
+      timeout: options.timeout || 30000,
+      // 使用 login shell 以确保 PATH 正确
+      shell: '/bin/zsh',
+      env: {
+        ...process.env,
+        PATH: '/usr/local/bin:/usr/bin:/bin:/opt/homebrew/bin:' + (process.env.PATH || ''),
+      },
+    });
+    return stdout;
+  }
+
+  // 默认使用 execFile (更安全)
   const { stdout } = await execFileAsync(command, args, {
     cwd: options?.cwd,
     timeout: options?.timeout || 30000,
