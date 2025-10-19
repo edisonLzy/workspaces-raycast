@@ -1,13 +1,12 @@
 import { randomUUID } from 'node:crypto';
 import { useCallback } from 'react';
 import { showToast, Toast, getPreferenceValues } from '@raycast/api';
-import * as fsUtils from '../utils/fs';
-import * as pathUtils from '../utils/path';
+import dayjs from 'dayjs';
 import { RequirementsSchema } from '../schemas/requirement';
 import { buildGetRequirementsPrompt } from '../prompts/requirement';
 import { useGemini } from './useGemini';
 import { useRequirements } from './useRequirements';
-import type { RequirementsData, Preferences, Requirement } from '../types';
+import type { Preferences, Requirement } from '../types';
 
 export interface SyncRequirementsParams {
   scheduleDocPath: string; // Excel 文件路径
@@ -19,7 +18,7 @@ export interface SyncRequirementsParams {
  * 包含: Gemini CLI 集成 + Excel 解析 + 数据追加 + 去重
  */
 export function useSyncRequirements() {
-  const { mutate } = useRequirements();
+  const { updateRequirements } = useRequirements();
   const { query } = useGemini();
   const { workspaceRoot } = getPreferenceValues<Preferences>();
 
@@ -47,65 +46,31 @@ export function useSyncRequirements() {
           return;
         }
 
-        // 3. 读取现有需求数据
-        const filePath = pathUtils.getDataFilePath(workspaceRoot);
-        let existingData: RequirementsData;
-        try {
-          existingData = await fsUtils.readJSON<RequirementsData>(filePath);
-        } catch (error) {
-          if ((error as NodeJS.ErrnoException).code === 'ENOENT') {
-            // 文件不存在,创建初始数据结构
-            existingData = {
-              version: '1.0',
-              requirements: [],
-            };
-          } else {
-            throw error;
-          }
-        }
+        // 2.5 格式化 parsedRequirements
+        const currentYear = dayjs().year();
+        const formattedRequirements: Requirement[] = parsedRequirements.map((req) => ({
+          ...req,
+          id: req.id || randomUUID(), // AI 未返回 id 时使用 UUID fallback
+          deadline: dayjs(`${currentYear}-${req.deadline}`).format('YYYY-MM-DD'), // '10-15' -> '2025-10-15'
+          isFinished: req.isFinished ?? false, // 默认为未完成
+          worktrees: [], // 初始化空数组
+        }));
+        
+        // 3. 使用 updater 函数进行去重和追加
+        await updateRequirements((prev) => {
+          // 使用 id 作为唯一键进行去重
+          const existingKeys = new Set(prev.map((req) => req.id));
+          const newRequirements = formattedRequirements.filter(
+            (req) => !existingKeys.has(req.id),
+          );
+          return [...prev, ...newRequirements];
+        });
 
-        // 4. 去重并追加新需求
-        const existingKeys = new Set(
-          existingData.requirements.map((req) => `${req.iteration}-${req.name}`),
-        );
-
-        const newRequirements: Requirement[] = [];
-        for (const req of parsedRequirements) {
-          const key = `${req.iteration}-${req.name}`;
-          if (!existingKeys.has(key)) {
-            newRequirements.push({
-              id: randomUUID(),
-              iteration: req.iteration,
-              name: req.name,
-              deadline: req.deadline,
-              context: req.context,
-              worktrees: [], // 初始化空的 worktrees 数组
-            });
-          }
-        }
-
-        if (newRequirements.length === 0) {
-          await showToast({
-            style: Toast.Style.Success,
-            title: '同步完成',
-            message: '所有需求已存在,无需追加',
-          });
-          return;
-        }
-
-        // 5. 保存数据
-        existingData.requirements.push(...newRequirements);
-        existingData.lastSyncAt = new Date().toISOString();
-        await fsUtils.writeJSON(filePath, existingData);
-
-        // 6. 刷新缓存
-        await mutate();
-
-        // 7. 显示成功通知
+        // 4. 显示成功通知
         await showToast({
           style: Toast.Style.Success,
-          title: '同步成功',
-          message: `已追加 ${newRequirements.length} 个新需求`,
+          title: '同步完成',
+          message: '所有需求已经同步',
         });
       } catch (error) {
         await showToast({
@@ -116,6 +81,6 @@ export function useSyncRequirements() {
         throw error;
       }
     },
-    [mutate, query, workspaceRoot],
+    [updateRequirements, query, workspaceRoot],
   );
 }

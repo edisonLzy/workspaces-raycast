@@ -31,7 +31,7 @@ export async function exec(
 
     const { stdout } = await execShellAsync(fullCommand, {
       cwd: options.cwd,
-      timeout: options.timeout || 30000,
+      timeout: options.timeout,
       // 使用 login shell 以确保 PATH 正确
       shell: '/bin/zsh',
       env: {

@@ -20,7 +20,8 @@ export const RequirementSchema = z.object({
     .string()
     .min(2, '需求名称至少 2 个字符')
     .max(100, '需求名称最多 100 个字符'), // 需求名称
-  deadline: z.string().describe('提测时间. YY月DD日'), // 需求提测时间
+  deadline: z.string().describe('提测时间 (日期格式 MM-DD, 如 10-15)'), // 需求提测时间
+  isFinished: z.boolean().default(false).describe('需求是否已完成'), // 完成状态
   context: z.array(ContextInfoSchema).default([]), // 上下文信息
   worktrees: z.array(WorktreeInfoSchema).optional(), // 关联的 worktree 信息
 });

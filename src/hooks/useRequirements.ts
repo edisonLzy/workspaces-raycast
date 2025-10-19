@@ -1,6 +1,7 @@
 import { useCachedPromise } from '@raycast/utils';
 import { useCallback, useMemo } from 'react';
 import { showToast, Toast, getPreferenceValues } from '@raycast/api';
+import dayjs from 'dayjs';
 import * as fsUtils from '../utils/fs';
 import * as pathUtils from '../utils/path';
 import type {
@@ -11,13 +12,13 @@ import type {
 } from '../types';
 
 /**
- * Hook: 加载需求数据 (带缓存)
- * 包含: 文件读取 + 错误处理
+ * Hook: 加载需求数据 (带缓存) + 批量追加需求
+ * 包含: 文件读取 + 错误处理 + 批量更新方法
  */
 export function useRequirements() {
   const { workspaceRoot } = getPreferenceValues<Preferences>();
 
-  return useCachedPromise(
+  const { data, mutate, isLoading, error, revalidate } = useCachedPromise(
     async () => {
       const filePath = pathUtils.getDataFilePath(workspaceRoot);
       try {
@@ -36,6 +37,63 @@ export function useRequirements() {
       initialData: [],
     },
   );
+
+  /**
+   * 更新需求列表方法
+   * @param updater - 更新函数,接受当前需求列表,返回新的需求列表
+   * @example
+   * // 追加需求
+   * updateRequirements(prev => [...prev, newRequirement])
+   *
+   * // 删除需求
+   * updateRequirements(prev => prev.filter(r => r.id !== id))
+   *
+   * // 更新需求
+   * updateRequirements(prev => prev.map(r => r.id === id ? { ...r, isFinished: true } : r))
+   */
+  const updateRequirements = useCallback(
+    async (updater: (currentRequirements: Requirement[]) => Requirement[]) => {
+      const filePath = pathUtils.getDataFilePath(workspaceRoot);
+      let fileData: RequirementsData;
+
+      try {
+        fileData = await fsUtils.readJSON<RequirementsData>(filePath);
+      } catch (error) {
+        if ((error as NodeJS.ErrnoException).code === 'ENOENT') {
+          // 文件不存在,创建初始数据结构
+          fileData = {
+            version: '1.0',
+            requirements: [],
+          };
+        } else {
+          throw error;
+        }
+      }
+
+      // 调用 updater 函数获取新的需求列表
+      const updatedRequirements = updater(fileData.requirements);
+
+      // 按 deadline 升序排序
+      const sortedRequirements = updatedRequirements.sort((a, b) =>
+        a.deadline.localeCompare(b.deadline),
+      );
+
+      fileData.requirements = sortedRequirements;
+      fileData.lastSyncAt = dayjs().valueOf().toString();
+      await fsUtils.writeJSON(filePath, fileData);
+      await mutate();
+    },
+    [mutate, workspaceRoot],
+  );
+
+  return {
+    data,
+    mutate,
+    isLoading,
+    error,
+    revalidate,
+    updateRequirements,
+  };
 }
 
 /**
@@ -69,7 +127,7 @@ export function useUpdateRequirement() {
           ...updates,
         };
 
-        data.lastSyncAt = new Date().toISOString();
+        data.lastSyncAt = dayjs().valueOf().toString();
         await fsUtils.writeJSON(filePath, data);
         await mutate();
 
@@ -106,7 +164,7 @@ export function useDeleteRequirement() {
         data.requirements = data.requirements.filter(
           (r) => r.id !== requirementId,
         );
-        data.lastSyncAt = new Date().toISOString();
+        data.lastSyncAt = dayjs().valueOf().toString();
 
         await fsUtils.writeJSON(filePath, data);
         await mutate();

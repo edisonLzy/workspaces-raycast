@@ -36,7 +36,7 @@ export function useGemini() {
     try {
       // 执行 Gemini CLI (60s 超时,处理大型 Excel 文件可能需要更长时间)
       // 不使用 shell 以避免转义问题,直接通过 execFile 传递参数
-      const output = await exec(geminiCliPath, args, { timeout: 60000, cwd: workspaceRoot });
+      const output = await exec(geminiCliPath, args, { cwd: workspaceRoot });
 
       // 尝试提取 markdown code block (优先)
       // 支持 ```json 或 ``` 两种格式
