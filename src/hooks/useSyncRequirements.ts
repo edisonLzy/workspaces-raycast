@@ -1,9 +1,10 @@
 import { randomUUID } from 'node:crypto';
 import { useCallback } from 'react';
 import { showToast, Toast, getPreferenceValues } from '@raycast/api';
-import { RequirementsListSchema } from '../schemas/requirement';
 import * as fsUtils from '../utils/fs';
 import * as pathUtils from '../utils/path';
+import { RequirementsSchema } from '../schemas/requirement';
+import { buildGetRequirementsPrompt } from '../prompts/requirement';
 import { useGemini } from './useGemini';
 import { useRequirements } from './useRequirements';
 import type { RequirementsData, Preferences, Requirement } from '../types';
@@ -32,27 +33,10 @@ export function useSyncRequirements() {
 
       try {
         // 1. 构建 Gemini CLI 查询 prompt
-        const geminiPrompt = `
-请使用 mcp__xlsx-mcp__get-records-from-sheet 根据用户筛选条件提取 排期文档中的数据
-文件路径: ${scheduleDocPath}
+        const geminiPrompt = buildGetRequirementsPrompt(scheduleDocPath, prompt);
 
-然后根据用户的筛选条件提取需求数据:
-${prompt}
-
-请返回符合以下 JSON Schema 的需求列表:
-- iteration: 迭代版本
-- name: 需求名称 (2-100 字符)
-- deadline: 截止日期 (Unix 时间戳,毫秒)
-- context: 上下文链接数组,每个元素包含:
-  - type: 固定为 "link"
-  - label: 链接标签 (如 "PRD", "TRD", "设计稿")
-  - content: URL 地址
-
-只返回 JSON 数组,不要包含任何其他内容。
-        `.trim();
-
-        // 2. 调用 Gemini CLI 进行解析
-        const parsedRequirements = await query(geminiPrompt, RequirementsListSchema);
+        // 2. 调用 Gemini CLI 进行解析,使用标准的 RequirementsListSchema
+        const parsedRequirements = await query(geminiPrompt, RequirementsSchema);
 
         if (parsedRequirements.length === 0) {
           await showToast({

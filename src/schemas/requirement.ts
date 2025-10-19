@@ -1,28 +1,31 @@
 import { z } from 'zod';
+import { ContextInfoSchema } from './context';
+import { WorktreeInfoSchema } from './worktree';
 
 /**
- * Context 信息 Schema
- */
-export const ContextInfoSchema = z.object({
-  type: z.literal('link'),
-  label: z.string(),
-  content: z.string(), // URL validation will be done at runtime
-});
-
-/**
- * 需求 Schema (用于验证 Claude Code 返回的数据)
- * 用于从排期文档同步需求时的数据验证
+ * 需求 Schema (完整版 - 对应 types.ts 中的 Requirement 接口)
+ * 用于存储在 requirements.json 中的完整需求数据
  */
 export const RequirementSchema = z.object({
-  iteration: z.string().describe('迭代号码'),
-  name: z.string().min(2, '需求名称至少 2 个字符').max(100, '需求名称最多 100 个字符'),
-  deadline: z.number().int().positive('截止日期必须是有效的 Unix 时间戳'),
-  context: z.array(ContextInfoSchema).default([]),
+  id: z.string().describe(`
+需求 ID (从 KeOnes 链接中提取)
+
+示例:
+- 输入: https://{host}/project/requirement/50505689
+- 输出: 50505689`), // 需求id 从 KeOnes URL 中提取
+  iteration: z
+    .string()
+    .describe('需求所属的迭代. e.g 7.19'),
+  name: z
+    .string()
+    .min(2, '需求名称至少 2 个字符')
+    .max(100, '需求名称最多 100 个字符'), // 需求名称
+  deadline: z.string().describe('提测时间. YY月DD日'), // 需求提测时间
+  context: z.array(ContextInfoSchema).default([]), // 上下文信息
+  worktrees: z.array(WorktreeInfoSchema).optional(), // 关联的 worktree 信息
 });
 
 /**
- * 需求列表 Schema
+ * 需求列表 Schema (用于同步)
  */
-export const RequirementsListSchema = z.array(RequirementSchema);
-
-export type RequirementSchemaType = z.infer<typeof RequirementSchema>;
+export const RequirementsSchema = z.array(RequirementSchema);

@@ -19,6 +19,7 @@ export async function exec(
   args: string[],
   options?: ExecOptions,
 ): Promise<string> {
+
   // 如果需要 shell 环境 (例如 Node.js 脚本需要 PATH)
   if (options?.shell) {
     // 转义参数以防止注入攻击

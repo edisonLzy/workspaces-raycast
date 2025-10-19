@@ -1,33 +1,20 @@
-/**
- * 上下文信息类型
- */
-export interface ContextInfo {
-  type: 'link'; // 后续可能会扩展更多类型
-  label: string;
-  content: string;
-}
+/* eslint-disable @typescript-eslint/consistent-type-imports */
+// 注意: 需要导入 schema 值(非 type)才能使用 z.infer<typeof Schema>
+import { z } from 'zod';
+import { ContextInfoSchema } from './schemas/context';
+import { WorktreeInfoSchema } from './schemas/worktree';
+import { RequirementSchema, RequirementsSchema } from './schemas/requirement';
 
 /**
- * Worktree 信息
+ * TypeScript 类型定义 - 从 Zod schemas 推导
  */
-export interface WorktreeInfo {
-  label: string; // worktree label
-  path: string; // worktree 绝对路径
-  branch: string; // 分支名称
-  repository: string; // 所属仓库
-}
+export type ContextInfo = z.infer<typeof ContextInfoSchema>;
 
-/**
- * 需求信息
- */
-export interface Requirement {
-  id: string; // 需求id
-  iteration: string; // 迭代版本 (e.g., "24.10.1")
-  name: string; // 需求名称
-  deadline: number; // 需求提测时间 (Unix 时间戳毫秒)
-  context: ContextInfo[]; // 上下文信息(e.g., PRD 文档,TRD 文档链接 等)
-  worktrees?: WorktreeInfo[]; // 关联的 worktree 信息
-}
+export type WorktreeInfo = z.infer<typeof WorktreeInfoSchema>;
+
+export type Requirement = z.infer<typeof RequirementSchema>;
+
+export type Requirements = z.infer<typeof RequirementsSchema>;
 
 /**
  * 数据文件格式

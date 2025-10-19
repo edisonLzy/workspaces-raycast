@@ -192,7 +192,7 @@ export function useRemoveWorktreeFromRequirement() {
       }
 
       const worktrees = (requirement.worktrees || []).filter(
-        (w) => w.path !== worktreePath,
+        (w: WorktreeInfo) => w.path !== worktreePath,
       );
 
       await updateRequirement(requirementId, { worktrees });

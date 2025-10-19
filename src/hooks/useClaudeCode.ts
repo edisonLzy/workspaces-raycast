@@ -1,5 +1,6 @@
 import { getPreferenceValues } from '@raycast/api';
 import { exec } from '../utils/exec';
+import { buildStructuralOutputPrompt } from '../prompts/common';
 import type { z } from 'zod';
 import type { Preferences } from '../types';
 
@@ -22,14 +23,11 @@ export function useClaudeCode() {
     schema: T,
   ): Promise<z.infer<T>> => {
     // 构建 Claude CLI 命令参数
-    // 将 schema 转换为可读的描述
-    const schemaDescription = JSON.stringify(schema);
+    const systemPrompt = buildStructuralOutputPrompt(schema);
     const args = [
       '--print',
       '--output-format', 'json',
-      '--system-prompt', `
-      You must respond with valid JSON that matches this schema: ${schemaDescription}. 
-      Only output the JSON, no markdown code blocks or explanations.`,
+      '--system-prompt', systemPrompt,
       prompt,
     ];
 

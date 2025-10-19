@@ -1,6 +1,7 @@
 import { getPreferenceValues } from '@raycast/api';
-import { z } from 'zod';
 import { exec } from '../utils/exec';
+import { buildStructuralOutputPrompt } from '../prompts/common';
+import type { z } from 'zod';
 import type { Preferences } from '../types';
 
 /**
@@ -8,7 +9,7 @@ import type { Preferences } from '../types';
  * 提供结构化查询能力,支持 Zod schema 验证和类型推断
  */
 export function useGemini() {
-  const { geminiCliPath = 'gemini' } = getPreferenceValues<Preferences>();
+  const { geminiCliPath = 'gemini', workspaceRoot } = getPreferenceValues<Preferences>();
 
   /**
    * 向 Gemini CLI 发送查询并获取结构化响应
@@ -22,16 +23,20 @@ export function useGemini() {
     schema: T,
   ): Promise<z.infer<T>> => {
     // 构建 Gemini CLI 命令参数
-    // 使用 Zod v4 原生方法将 schema 转换为标准 JSON Schema
-    const jsonSchema = z.toJSONSchema(schema);
-    const fullPrompt = `${prompt}\n\nYou must respond with valid JSON wrapped in a markdown code block:\n\`\`\`json\n<your JSON here>\n\`\`\`\n\nSchema:\n${JSON.stringify(jsonSchema, null, 2)}`;
+    const fullPrompt = `
+    ${prompt}
+    ${buildStructuralOutputPrompt(schema)}
+    `;
 
-    const args = ['-p', fullPrompt];
+    const args = [
+      '-p', fullPrompt,
+      '--yolo'
+    ];
 
     try {
-      // 执行 Gemini CLI (10s 超时)
+      // 执行 Gemini CLI (60s 超时,处理大型 Excel 文件可能需要更长时间)
       // 不使用 shell 以避免转义问题,直接通过 execFile 传递参数
-      const output = await exec(geminiCliPath, args, { timeout: 10000 });
+      const output = await exec(geminiCliPath, args, { timeout: 60000, cwd: workspaceRoot });
 
       // 尝试提取 markdown code block (优先)
       // 支持 ```json 或 ``` 两种格式
@@ -65,7 +70,7 @@ export function useGemini() {
           .join('\n');
 
         throw new Error(
-          `Gemini response validation failed:\n${errorDetails}\n\nReceived data:\n${JSON.stringify(jsonResponse, null, 2)}\n\nExpected schema:\n${JSON.stringify(jsonSchema, null, 2)}`,
+          `Gemini response validation failed:\n${errorDetails}\n\nReceived data:\n${JSON.stringify(jsonResponse, null, 2)}`,
         );
       }
 
@@ -77,8 +82,8 @@ export function useGemini() {
         if (error.message.includes('ENOENT')) {
           throw new Error('Gemini CLI not found. Please ensure Gemini CLI is installed.');
         }
-        if (error.message.includes('timeout')) {
-          throw new Error('Gemini CLI request timed out (10s limit).');
+        if (error.message.includes('timeout') || error.message.includes('SIGTERM')) {
+          throw new Error('Gemini CLI request timed out (60s limit). Try reducing the scope or file size.');
         }
         throw error;
       }
