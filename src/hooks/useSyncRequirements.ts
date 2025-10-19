@@ -36,7 +36,6 @@ export function useSyncRequirements() {
 
         // 2. 调用 Gemini CLI 进行解析,使用标准的 RequirementsListSchema
         const parsedRequirements = await query(geminiPrompt, RequirementsSchema);
-
         if (parsedRequirements.length === 0) {
           await showToast({
             style: Toast.Style.Failure,

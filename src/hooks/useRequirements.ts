@@ -25,8 +25,13 @@ export function useRequirements() {
         const data = await fsUtils.readJSON<RequirementsData>(filePath);
         return data.requirements;
       } catch (error) {
-        if ((error as NodeJS.ErrnoException).code === 'ENOENT') {
-          return []; // 文件不存在,返回空数组
+        const err = error as NodeJS.ErrnoException | Error;
+        // 文件不存在或文件为空,返回空数组
+        if (err instanceof Error && err.message.includes('ENOENT')) {
+          return [];
+        }
+        if (err instanceof Error && err.message.includes('File is empty')) {
+          return [];
         }
         throw error;
       }
@@ -59,8 +64,12 @@ export function useRequirements() {
       try {
         fileData = await fsUtils.readJSON<RequirementsData>(filePath);
       } catch (error) {
-        if ((error as NodeJS.ErrnoException).code === 'ENOENT') {
-          // 文件不存在,创建初始数据结构
+        const err = error as NodeJS.ErrnoException | Error;
+        // 文件不存在或文件为空,创建初始数据结构
+        if (
+          (err instanceof Error && err.message.includes('ENOENT')) ||
+          (err instanceof Error && err.message.includes('File is empty'))
+        ) {
           fileData = {
             version: '1.0',
             requirements: [],

@@ -25,15 +25,13 @@ export function useClaudeCode() {
     // 构建 Claude CLI 命令参数
     const systemPrompt = buildStructuralOutputPrompt(schema);
     const args = [
-      '--print',
-      '--output-format', 'json',
+      '--print', prompt,
       '--system-prompt', systemPrompt,
-      prompt,
     ];
 
     try {
       // 执行 Claude CLI (10s 超时, 使用 shell 解决 Node.js PATH 问题)
-      const output = await exec(claudeCliPath, args, { timeout: 10000, shell: true });
+      const output = await exec(claudeCliPath, args, { shell: true });
 
       // 解析 Claude CLI 的响应包装
       let cliResponse: unknown;

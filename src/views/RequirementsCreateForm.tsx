@@ -1,4 +1,3 @@
-import { inspect } from 'util';
 import React from 'react';
 import {
   Form,
@@ -8,6 +7,7 @@ import {
 } from '@raycast/api';
 import { useForm } from '@raycast/utils';
 import { useSyncRequirements } from '../hooks/useSyncRequirements';
+import { logError } from '../utils/logger';
 
 interface RequirementsCreateFormValues {
   scheduleDocPath: string[];
@@ -32,11 +32,9 @@ export function RequirementsCreateForm() {
         pop(); // 同步成功后返回上一页
       } catch (error) {
         // 错误已在 hook 中通过 Toast 显示
-        console.error('同步需求失败:', inspect(error, {
-          depth: null, // 显示所有嵌套层级
-          colors: false, // Raycast 日志不支持颜色
-          showHidden: false, // 不显示隐藏属性
-        }));
+        // 将完整错误信息写入日志文件
+        const logFile = logError(error, '需求同步失败');
+        console.error(`详细错误日志已保存至: ${logFile}`);
       }
     },
     validation: {

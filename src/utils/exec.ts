@@ -46,7 +46,7 @@ export async function exec(
   // 扩展 PATH 以确保能找到全局安装的命令
   const { stdout } = await execFileAsync(command, args, {
     cwd: options?.cwd,
-    timeout: options?.timeout || 30000,
+    timeout: options?.timeout, // 不设置默认值,允许无超时限制
     env: {
       ...process.env,
       PATH: '/usr/local/bin:/usr/bin:/bin:/opt/homebrew/bin:' + (process.env.PATH || ''),
@@ -65,7 +65,7 @@ export async function execGit(
 ): Promise<string> {
   const { stdout } = await execFileAsync('git', args, {
     cwd: options?.cwd,
-    timeout: options?.timeout || 30000,
+    timeout: options?.timeout, // 不设置默认值,允许无超时限制
   });
   return stdout;
 }

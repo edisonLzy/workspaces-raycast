@@ -7,7 +7,22 @@ import path from 'path';
  */
 export async function readJSON<T>(filePath: string): Promise<T> {
   const content = await fs.readFile(filePath, 'utf-8');
-  return JSON.parse(content);
+
+  // 处理空文件或只有空白字符的文件
+  const trimmedContent = content.trim();
+  if (!trimmedContent) {
+    throw new Error(`File is empty: ${filePath}`);
+  }
+
+  try {
+    return JSON.parse(trimmedContent);
+  } catch (error) {
+    // 增强错误信息，包含文件路径和部分内容
+    const preview = trimmedContent.slice(0, 100);
+    throw new Error(
+      `Failed to parse JSON from ${filePath}: ${error instanceof Error ? error.message : String(error)}\nContent preview: ${preview}${trimmedContent.length > 100 ? '...' : ''}`,
+    );
+  }
 }
 
 /**

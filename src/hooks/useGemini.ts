@@ -34,9 +34,11 @@ export function useGemini() {
     ];
 
     try {
-      // 执行 Gemini CLI (60s 超时,处理大型 Excel 文件可能需要更长时间)
+      // 执行 Gemini CLI (无超时限制,支持处理大型 Excel 文件)
       // 不使用 shell 以避免转义问题,直接通过 execFile 传递参数
-      const output = await exec(geminiCliPath, args, { cwd: workspaceRoot });
+      const output = await exec(geminiCliPath, args, {
+        cwd: workspaceRoot,
+      });
 
       // 尝试提取 markdown code block (优先)
       // 支持 ```json 或 ``` 两种格式
@@ -83,7 +85,7 @@ export function useGemini() {
           throw new Error('Gemini CLI not found. Please ensure Gemini CLI is installed.');
         }
         if (error.message.includes('timeout') || error.message.includes('SIGTERM')) {
-          throw new Error('Gemini CLI request timed out (60s limit). Try reducing the scope or file size.');
+          throw new Error('Gemini CLI 请求超时 (60秒限制)。请尝试缩小查询范围或减小文件大小。');
         }
         throw error;
       }
