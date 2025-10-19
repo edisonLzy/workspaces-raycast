@@ -4,7 +4,7 @@ import { showToast, Toast, getPreferenceValues } from '@raycast/api';
 import { RequirementsListSchema } from '../schemas/requirement';
 import * as fsUtils from '../utils/fs';
 import * as pathUtils from '../utils/path';
-import { useClaudeCode } from './useClaudeCode';
+import { useGemini } from './useGemini';
 import { useRequirements } from './useRequirements';
 import type { RequirementsData, Preferences, Requirement } from '../types';
 
@@ -15,11 +15,11 @@ export interface SyncRequirementsParams {
 
 /**
  * Hook: 从排期文档同步需求
- * 包含: Claude Code 集成 + Excel 解析 + 数据追加 + 去重
+ * 包含: Gemini CLI 集成 + Excel 解析 + 数据追加 + 去重
  */
 export function useSyncRequirements() {
   const { mutate } = useRequirements();
-  const { query } = useClaudeCode();
+  const { query } = useGemini();
   const { workspaceRoot } = getPreferenceValues<Preferences>();
 
   return useCallback(
@@ -27,12 +27,12 @@ export function useSyncRequirements() {
       await showToast({
         style: Toast.Style.Animated,
         title: '正在同步需求...',
-        message: '使用 Claude Code 解析排期文档',
+        message: '使用 Gemini CLI 解析排期文档',
       });
 
       try {
-        // 1. 构建 Claude Code 查询 prompt
-        const claudePrompt = `
+        // 1. 构建 Gemini CLI 查询 prompt
+        const geminiPrompt = `
 请使用 mcp__xlsx-mcp__get-records-from-sheet 根据用户筛选条件提取 排期文档中的数据
 文件路径: ${scheduleDocPath}
 
@@ -51,8 +51,8 @@ ${prompt}
 只返回 JSON 数组,不要包含任何其他内容。
         `.trim();
 
-        // 2. 调用 Claude Code 进行解析
-        const parsedRequirements = await query(claudePrompt, RequirementsListSchema);
+        // 2. 调用 Gemini CLI 进行解析
+        const parsedRequirements = await query(geminiPrompt, RequirementsListSchema);
 
         if (parsedRequirements.length === 0) {
           await showToast({

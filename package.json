@@ -17,9 +17,9 @@
       "mode": "view"
     },
     {
-      "name": "test-claude-code",
-      "title": "Test Claude Code",
-      "description": "Test Claude Code CLI integration",
+      "name": "test-gemini",
+      "title": "Test Gemini",
+      "description": "Test Gemini CLI integration",
       "mode": "view"
     }
   ],
@@ -40,6 +40,15 @@
       "description": "Claude Code CLI 的完整路径 (例如: /usr/local/bin/claude 或 /opt/homebrew/bin/claude)",
       "default": "claude",
       "placeholder": "/usr/local/bin/claude"
+    },
+    {
+      "name": "geminiCliPath",
+      "type": "textfield",
+      "required": false,
+      "title": "Gemini CLI 路径",
+      "description": "Gemini CLI 的完整路径 (例如: /usr/local/bin/gemini)",
+      "default": "gemini",
+      "placeholder": "/usr/local/bin/gemini"
     }
   ],
   "dependencies": {

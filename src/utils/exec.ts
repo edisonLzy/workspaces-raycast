@@ -22,11 +22,10 @@ export async function exec(
   // 如果需要 shell 环境 (例如 Node.js 脚本需要 PATH)
   if (options?.shell) {
     // 转义参数以防止注入攻击
-    const escapedArgs = args.map(arg =>
-      arg.includes(' ') || arg.includes('"') || arg.includes('\'')
-        ? `"${arg.replace(/"/g, '\\"')}"`
-        : arg,
-    );
+    const escapedArgs = args.map((arg) => {
+      // 使用单引号包裹并转义其中的单引号
+      return `'${arg.replace(/'/g, '\'\\\'\'')}'`;
+    });
     const fullCommand = [command, ...escapedArgs].join(' ');
 
     const { stdout } = await execShellAsync(fullCommand, {
@@ -42,10 +41,15 @@ export async function exec(
     return stdout;
   }
 
-  // 默认使用 execFile (更安全)
+  // 默认使用 execFile (更安全,无需转义)
+  // 扩展 PATH 以确保能找到全局安装的命令
   const { stdout } = await execFileAsync(command, args, {
     cwd: options?.cwd,
     timeout: options?.timeout || 30000,
+    env: {
+      ...process.env,
+      PATH: '/usr/local/bin:/usr/bin:/bin:/opt/homebrew/bin:' + (process.env.PATH || ''),
+    },
   });
   return stdout;
 }
