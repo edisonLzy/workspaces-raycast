@@ -20,6 +20,8 @@ type ExtensionPreferences = {
 declare type Preferences = ExtensionPreferences
 
 declare namespace Preferences {
+  /** Preferences accessible in the `initialize-workspace` command */
+  export type InitializeWorkspace = ExtensionPreferences & {}
   /** Preferences accessible in the `requirements` command */
   export type Requirements = ExtensionPreferences & {}
   /** Preferences accessible in the `test-gemini` command */
@@ -27,6 +29,8 @@ declare namespace Preferences {
 }
 
 declare namespace Arguments {
+  /** Arguments passed to the `initialize-workspace` command */
+  export type InitializeWorkspace = {}
   /** Arguments passed to the `requirements` command */
   export type Requirements = {}
   /** Arguments passed to the `test-gemini` command */

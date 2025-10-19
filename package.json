@@ -11,6 +11,12 @@
   "license": "MIT",
   "commands": [
     {
+      "name": "initialize-workspace",
+      "title": "Initialize Workspace",
+      "description": "Initialize workspace with requirements.json file",
+      "mode": "view"
+    },
+    {
       "name": "requirements",
       "title": "Requirements",
       "description": "View and manage all requirements",
