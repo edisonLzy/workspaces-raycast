@@ -19,8 +19,9 @@ import type { Preferences } from '../types';
 export interface CreateWorktreeParams {
   requirementId: string;
   repoPath: string;
+  baseBranch: string;
   branch: string;
-  label: string;
+  featureType: 'feat' | 'fix';
   repository: string;
 }
 
@@ -40,9 +41,11 @@ export function useCreateWorktree() {
       });
 
       try {
-        // 1. 生成目标路径
+        // 1. 生成目标路径(使用新的路径结构)
         const targetPath = pathUtils.getWorktreePath(
           workspaceRoot,
+          params.requirementId,
+          params.repository,
           params.branch,
         );
 
@@ -81,9 +84,9 @@ export function useCreateWorktree() {
           throw new Error(`分支 ${params.branch} 已存在,请使用其他名称`);
         }
 
-        // 4. 执行 git worktree add (调用纯工具函数)
+        // 4. 执行 git worktree add -b <branch> <path> <baseBranch>
         await execUtils.execGit(
-          ['worktree', 'add', '-b', params.branch, targetPath],
+          ['worktree', 'add', '-b', params.branch, targetPath, params.baseBranch],
           {
             cwd: params.repoPath,
             timeout: 30000,
@@ -92,9 +95,10 @@ export function useCreateWorktree() {
 
         // 5. 更新需求数据
         await addWorktree(params.requirementId, {
-          label: params.label,
-          path: targetPath,
+          baseBranch: params.baseBranch,
           branch: params.branch,
+          featureType: params.featureType,
+          path: targetPath,
           repository: params.repository,
         });
 

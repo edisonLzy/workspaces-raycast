@@ -38,11 +38,10 @@ export function WorktreesView({ requirement }: { requirement: Requirement }) {
           worktrees.map((worktree: WorktreeInfo, idx: number) => (
             <List.Item
               key={idx}
-              title={worktree.label}
-              subtitle={worktree.branch}
+              title={worktree.branch}
               accessories={[
-                { text: worktree.repository, icon: Icon.Box },
-                { tag: { value: 'worktree', color: '#4CAF50' } },
+                { tag: { value: `${worktree.repository}`, color: 'oklch(68.5% 0.169 237.323)' } },
+                { tag: { value: `${worktree.featureType}`, color: worktree.featureType === 'feat' ? 'oklch(79.2% 0.209 151.711)' : 'oklch(70.4% 0.191 22.216)' } },
               ]}
               actions={
                 <ActionPanel>
