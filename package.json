@@ -3,7 +3,7 @@
   "name": "workspaces-manager",
   "title": "Workspaces Manager",
   "description": "Manage development requirements and Git worktrees efficiently",
-  "icon": "extension-icon.png",
+  "icon": "assets/extension-icon.png",
   "author": "zhiyu",
   "categories": [
     "Developer Tools"
@@ -14,19 +14,22 @@
       "name": "initialize-workspace",
       "title": "Initialize Workspace",
       "description": "Initialize workspace with requirements.json file",
-      "mode": "view"
+      "mode": "view",
+      "icon": "command-icon.png"
     },
     {
       "name": "requirements",
       "title": "Requirements",
       "description": "View and manage all requirements",
-      "mode": "view"
+      "mode": "view",
+      "icon": "command-icon.png"
     },
     {
       "name": "test-gemini",
       "title": "Test Gemini",
       "description": "Test Gemini CLI integration",
-      "mode": "view"
+      "mode": "view",
+      "icon": "command-icon.png"
     }
   ],
   "preferences": [
