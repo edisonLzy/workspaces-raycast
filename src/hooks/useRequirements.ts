@@ -90,7 +90,9 @@ export function useRequirements() {
       fileData.requirements = sortedRequirements;
       fileData.lastSyncAt = dayjs().valueOf().toString();
       await fsUtils.writeJSON(filePath, fileData);
-      await mutate();
+      await mutate(Promise.resolve(sortedRequirements), {
+        optimisticUpdate: () => sortedRequirements,
+      });
     },
     [mutate, workspaceRoot],
   );
@@ -138,7 +140,9 @@ export function useUpdateRequirement() {
 
         data.lastSyncAt = dayjs().valueOf().toString();
         await fsUtils.writeJSON(filePath, data);
-        await mutate();
+        await mutate(Promise.resolve(data.requirements), {
+          optimisticUpdate: () => data.requirements,
+        });
 
         await showToast({ style: Toast.Style.Success, title: '需求更新成功' });
       } catch (error) {
@@ -176,7 +180,9 @@ export function useDeleteRequirement() {
         data.lastSyncAt = dayjs().valueOf().toString();
 
         await fsUtils.writeJSON(filePath, data);
-        await mutate();
+        await mutate(Promise.resolve(data.requirements), {
+          optimisticUpdate: () => data.requirements,
+        });
 
         await showToast({ style: Toast.Style.Success, title: '需求删除成功' });
       } catch (error) {
