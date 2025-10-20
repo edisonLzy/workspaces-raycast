@@ -63,7 +63,6 @@ export function RequirementsCreateForm() {
           <Action.SubmitForm
             title="开始同步"
             onSubmit={handleSubmit}
-            shortcut={{ modifiers: ['cmd'], key: 'enter' }}
           />
         </ActionPanel>
       }

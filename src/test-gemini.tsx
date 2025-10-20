@@ -100,7 +100,6 @@ export default function TestGemini() {
           <Action.SubmitForm
             title="发送查询"
             onSubmit={handleSubmit}
-            shortcut={{ modifiers: ['cmd'], key: 'enter' }}
           />
         </ActionPanel>
       }
