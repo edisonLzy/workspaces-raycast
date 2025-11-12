@@ -14,6 +14,7 @@ import {
 import { RequirementDetail } from './RequirementDetail';
 import { WorktreesView } from './WorktreesView';
 import { RequirementsCreateForm } from './RequirementsCreateForm';
+import { RequirementManualCreateForm } from './RequirementManualCreateForm';
 import type { Requirement } from '../types';
 
 /**
@@ -31,6 +32,11 @@ export function RequirementsView() {
         description="开始同步排期文档或手动添加需求"
         actions={
           <ActionPanel>
+            <Action.Push
+              title="手动创建需求"
+              icon={Icon.Plus}
+              target={<RequirementManualCreateForm />}
+            />
             <Action.Push
               title="同步排期文档"
               icon={Icon.ArrowClockwise}
@@ -91,10 +97,16 @@ export function RequirementsView() {
 
                       <ActionPanel.Section title="管理">
                         <Action.Push
+                          title="手动创建需求"
+                          icon={Icon.Plus}
+                          target={<RequirementManualCreateForm />}
+                          shortcut={{ modifiers: ['cmd'], key: 'n' }}
+                        />
+                        <Action.Push
                           title="同步排期文档"
                           icon={Icon.ArrowClockwise}
                           target={<RequirementsCreateForm />}
-                          shortcut={{ modifiers: ['cmd'], key: 'n' }}
+                          shortcut={{ modifiers: ['cmd', 'shift'], key: 's' }}
                         />
                         <Action
                           title="删除需求"
