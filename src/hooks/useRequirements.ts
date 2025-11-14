@@ -201,6 +201,8 @@ export function useDeleteRequirement() {
 /**
  * Hook: 按迭代分组
  * 包含: 数据转换逻辑
+ * 迭代按降序排列 (24.11 > 24.10)
+ * 迭代内需求按 deadline 升序排列
  */
 export function useGroupedRequirements() {
   const { data: requirements, isLoading } = useRequirements();
@@ -208,6 +210,7 @@ export function useGroupedRequirements() {
   const grouped = useMemo(() => {
     if (!requirements) return new Map();
 
+    // 按迭代分组
     const map = new Map<string, Requirement[]>();
     requirements.forEach((req) => {
       if (!map.has(req.iteration)) {
@@ -215,7 +218,25 @@ export function useGroupedRequirements() {
       }
       map.get(req.iteration)!.push(req);
     });
-    return map;
+
+    // 对每个迭代内的需求按 deadline 升序排序
+    map.forEach((reqs, iteration) => {
+      map.set(
+        iteration,
+        reqs.sort((a, b) => a.deadline.localeCompare(b.deadline)),
+      );
+    });
+
+    // 将 Map 转换为按迭代号降序排序的 Map
+    const sortedMap = new Map(
+      Array.from(map.entries()).sort(([iterA], [iterB]) => {
+        // 迭代格式: YY.MM.N (e.g., "24.10.1")
+        // 按字符串降序排序即可 (因为格式固定,字典序等同于版本降序)
+        return iterB.localeCompare(iterA);
+      }),
+    );
+
+    return sortedMap;
   }, [requirements]);
 
   return { data: grouped, isLoading };
